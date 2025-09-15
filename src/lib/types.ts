@@ -1,12 +1,19 @@
 export type Role = "user" | "assistant" | "system";
 
+export type Table = {
+  name: string;
+  columns: string[];
+  rows: (string | number)[][];
+};
+
 export type Message = {
   role: Role;
   content: string;
+  tables?: Table[] | null;
 };
 
 export type ApiResponse = {
-  messages: { role: string; content: string }[];
+  messages: { role: string; content: string; tables?: Table[] | null }[];
 };
 
 export type ChatTurn = {

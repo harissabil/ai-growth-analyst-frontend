@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Growth Analyst",
-  description: "AI-powered growth analysis and insights platform",
+  title: "AI-Powered Growth Analyst | SoftwareOne",
+  description: "AI-powered growth analysis and insights platform by SoftwareOne",
 };
 
 export default function RootLayout({

@@ -1,12 +1,27 @@
-import { useState, KeyboardEvent } from 'react';
+import { useState, KeyboardEvent, useEffect } from 'react';
 
 interface ChatInputProps {
   onSend: (text: string) => void;
   isLoading: boolean;
+  suggestionText?: string;
 }
 
-export default function ChatInput({ onSend, isLoading }: ChatInputProps) {
+export default function ChatInput({ onSend, isLoading, suggestionText }: ChatInputProps) {
   const [input, setInput] = useState('');
+
+  // Fill input when suggestion is clicked
+  useEffect(() => {
+    if (suggestionText) {
+      setInput(suggestionText);
+      // Auto-focus the textarea
+      const textarea = document.querySelector('textarea');
+      if (textarea) {
+        textarea.focus();
+        // Move cursor to end
+        textarea.setSelectionRange(suggestionText.length, suggestionText.length);
+      }
+    }
+  }, [suggestionText]);
 
   const handleSubmit = () => {
     const trimmed = input.trim();
@@ -24,8 +39,8 @@ export default function ChatInput({ onSend, isLoading }: ChatInputProps) {
   };
 
   return (
-    <div className="p-4 bg-white/70 backdrop-blur-sm border-t border-gray-200/50">
-      <div className="flex gap-3 items-end bg-white rounded-2xl shadow-lg border border-gray-200/50 p-3 transition-all duration-200 focus-within:shadow-xl focus-within:border-blue-300">
+    <div className="p-6 bg-white border-t border-gray-200">
+      <div className="flex gap-4 items-end bg-white rounded-xl swo-shadow-md border border-gray-200 p-4 transition-all duration-200 focus-within:swo-shadow-lg focus-within:border-gray-400">
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -34,13 +49,13 @@ export default function ChatInput({ onSend, isLoading }: ChatInputProps) {
           disabled={isLoading}
           rows={1}
           className="
-            flex-1 resize-none border-0 bg-transparent px-2 py-2
-            focus:outline-none placeholder-gray-400 text-gray-700
-            min-h-[40px] max-h-[120px] leading-relaxed
+            flex-1 resize-none border-0 bg-transparent px-3 py-3
+            focus:outline-none placeholder-gray-500 text-gray-900
+            min-h-[44px] max-h-[120px] leading-relaxed font-medium
           "
           style={{
             height: 'auto',
-            minHeight: '40px',
+            minHeight: '44px',
           }}
           onInput={(e) => {
             const target = e.target as HTMLTextAreaElement;
@@ -53,16 +68,17 @@ export default function ChatInput({ onSend, isLoading }: ChatInputProps) {
           onClick={handleSubmit}
           disabled={!input.trim() || isLoading}
           className="
-            p-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl
-            hover:from-blue-600 hover:to-purple-700 disabled:from-gray-300 disabled:to-gray-400
-            disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg
-            transform hover:scale-105 active:scale-95 min-w-[48px] flex items-center justify-center
+            p-3 bg-black text-white rounded-lg
+            hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500
+            disabled:cursor-not-allowed transition-all duration-200 swo-shadow-md hover:swo-shadow-lg
+            transform hover:scale-105 active:scale-95 min-w-[52px] flex items-center justify-center
+            font-medium
           "
           title={isLoading ? "Sending..." : "Send message"}
         >
           {isLoading ? (
             <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           ) : (
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,12 +88,12 @@ export default function ChatInput({ onSend, isLoading }: ChatInputProps) {
         </button>
       </div>
 
-      <div className="flex items-center justify-between mt-3 px-2">
-        <p className="text-xs text-gray-500">
-          Press <kbd className="px-2 py-1 bg-gray-100 rounded text-xs">Enter</kbd> to send,
-          <kbd className="px-2 py-1 bg-gray-100 rounded text-xs ml-1">Shift + Enter</kbd> for new line
+      <div className="flex items-center justify-between mt-4 px-2">
+        <p className="text-xs text-gray-600 font-medium">
+          Press <kbd className="px-2 py-1 bg-gray-100 rounded text-xs border border-gray-200 font-mono">Enter</kbd> to send,
+          <kbd className="px-2 py-1 bg-gray-100 rounded text-xs ml-1 border border-gray-200 font-mono">Shift + Enter</kbd> for new line
         </p>
-        <div className="text-xs text-gray-400">
+        <div className="text-xs text-gray-500">
           {input.length > 0 && `${input.length} characters`}
         </div>
       </div>

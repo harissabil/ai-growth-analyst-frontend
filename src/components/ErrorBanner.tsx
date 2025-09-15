@@ -9,21 +9,21 @@ export default function ErrorBanner({ error, onDismiss }: ErrorBannerProps) {
   const isUnauthorized = error.includes('401') || error.toLowerCase().includes('unauthorized');
 
   return (
-     <div className="mx-4 mt-4 animate-in slide-in-from-top duration-300">
-      <div className="p-4 bg-red-50 border-l-4 border-red-400 rounded-r-xl shadow-md backdrop-blur-sm">
+    <div className="mx-6 mt-4 animate-in slide-in-from-top duration-300">
+      <div className="p-4 bg-gray-50 border-l-4 border-black rounded-r-xl swo-shadow-md">
         <div className="flex justify-between items-start">
           <div className="flex items-start space-x-3">
-            <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mt-0.5">
-              <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center mt-0.5">
+              <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <div className="flex-1">
-              <p className="text-red-800 font-semibold text-sm">Something went wrong</p>
-              <p className="text-red-700 text-sm mt-1 leading-relaxed">{error}</p>
+              <p className="text-black font-semibold text-sm">Something went wrong</p>
+              <p className="text-gray-700 text-sm mt-1 leading-relaxed">{error}</p>
               {isUnauthorized && (
-                <div className="mt-3 p-3 bg-red-100/50 rounded-lg border border-red-200">
-                  <p className="text-red-600 text-xs flex items-center space-x-2">
+                <div className="mt-3 p-3 bg-white rounded-lg border border-gray-200 swo-shadow">
+                  <p className="text-gray-800 text-xs flex items-center space-x-2">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -36,7 +36,7 @@ export default function ErrorBanner({ error, onDismiss }: ErrorBannerProps) {
           {onDismiss && (
             <button
               onClick={onDismiss}
-              className="text-red-400 hover:text-red-600 hover:bg-red-100 rounded-full p-1 transition-all duration-200"
+              className="text-gray-600 hover:text-black hover:bg-gray-200 rounded-full p-1 transition-all duration-200"
               aria-label="Dismiss error"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
