@@ -33,14 +33,14 @@ export default function HistoryPage() {
               <Image
                 src="/logo_swo.png"
                 alt="SoftwareOne"
-                width={32}
-                height={32}
+                width={40}
+                height={40}
                 className="object-contain"
               />
               <div className="h-6 w-px bg-gray-300"></div>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-black">Chat History</h1>
+              <h1 className="text-xl font-bold text-black">Chat History</h1>
               <p className="text-sm text-gray-600">AI-Powered Growth Analyst by SoftwareOne</p>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Message } from '@/lib/types';
 import ChatMessage from './ChatMessage';
+import Image from 'next/image';
 
 interface ChatThreadProps {
   messages: Message[];
@@ -58,32 +59,15 @@ export default function ChatThread({ messages, onSuggestionClick }: ChatThreadPr
   };
 
   return (
-    <div className="flex-1 overflow-y-auto py-6 space-y-2">
+    <div className="py-6 space-y-2">
       {messages.length === 0 ? (
         <div className="flex items-center justify-center min-h-full px-4 py-8">
           <div className="text-center max-w-6xl mx-auto w-full">
-            <div className="w-24 h-24 bg-black rounded-full flex items-center justify-center mx-auto mb-8 swo-shadow-lg">
-              <svg
-                className="w-12 h-12 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
-            </div>
-            <h2 className="text-3xl lg:text-4xl font-bold text-black mb-4">
-              Welcome to AI-Powered Growth Analyst
-            </h2>
+            {/*<h2 className="text-3xl lg:text-4xl font-bold text-black mb-4">*/}
+            {/*  Welcome to AI-Powered Growth Analyst*/}
+            {/*</h2>*/}
             <p className="text-gray-600 mb-12 leading-relaxed text-lg lg:text-xl max-w-3xl mx-auto">
-              Get intelligent insights about your business growth, analytics data,
-              and performance metrics. Ask me anything about your data or try one of
-              these suggestions!
+              Get intelligent insights about your business growth, analytics data, and performance metrics. Ask me anything about your data!
             </p>
 
             {/* Feature Overview Cards */}
