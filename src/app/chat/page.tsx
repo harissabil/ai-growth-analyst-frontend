@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { Message } from '@/lib/types';
+import {useState, useEffect, Suspense} from 'react';
+import {useSearchParams} from 'next/navigation';
+import {Message} from '@/lib/types';
 import ChatThread from '@/components/ChatThread';
 import ChatInput from '@/components/ChatInput';
 import ErrorBanner from '@/components/ErrorBanner';
 import Image from 'next/image';
 
-export default function ChatPage() {
+function ChatPageContent() {
     const searchParams = useSearchParams();
     const historyId = searchParams?.get('history_id');
 
@@ -61,7 +61,7 @@ export default function ChatPage() {
     const handleSendMessage = async (content: string) => {
         if (isLoading) return;
 
-        const userMessage: Message = { role: 'user', content };
+        const userMessage: Message = {role: 'user', content};
         const newThread = [...thread, userMessage];
 
         setThread(newThread);
@@ -69,7 +69,7 @@ export default function ChatPage() {
         setError(null);
 
         // Add loading indicator for AI response
-        const loadingMessage: Message = { role: 'assistant', content: 'Thinking...' };
+        const loadingMessage: Message = {role: 'assistant', content: 'Thinking...'};
         setThread([...newThread, loadingMessage]);
 
         try {
@@ -84,7 +84,7 @@ export default function ChatPage() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ messages: newThread }),
+                body: JSON.stringify({messages: newThread}),
             });
 
             if (!response.ok) {
@@ -188,7 +188,8 @@ export default function ChatPage() {
                             className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 text-sm font-medium border border-gray-200 hover:border-gray-300 swo-shadow hover:swo-shadow-md"
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                             <span>History</span>
                         </a>
@@ -233,7 +234,8 @@ export default function ChatPage() {
                                 className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 text-sm font-medium border border-gray-200 hover:border-gray-300 swo-shadow hover:swo-shadow-md"
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                                 </svg>
                                 <span>New Chat</span>
                             </a>
@@ -243,7 +245,8 @@ export default function ChatPage() {
                             className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 text-sm font-medium border border-gray-200 hover:border-gray-300 swo-shadow hover:swo-shadow-md"
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                             <span>History</span>
                         </a>
@@ -251,18 +254,71 @@ export default function ChatPage() {
                 </div>
             </header>
 
-            <ErrorBanner error={error} onDismiss={dismissError} />
+            <ErrorBanner error={error} onDismiss={dismissError}/>
 
             <div className="flex-1 flex flex-col min-h-0">
                 <div className="flex-1 overflow-y-auto">
                     <div className="max-w-5xl mx-auto w-full px-6">
-                        <ChatThread messages={thread} onSuggestionClick={handleSuggestionClick} />
+                        <ChatThread messages={thread} onSuggestionClick={handleSuggestionClick}/>
                     </div>
                 </div>
                 <div className="max-w-5xl mx-auto w-full px-6">
-                    <ChatInput onSend={handleSendMessage} isLoading={isLoading} suggestionText={suggestionText} />
+                    <ChatInput onSend={handleSendMessage} isLoading={isLoading} suggestionText={suggestionText}/>
                 </div>
             </div>
         </div>
+    );
+}
+
+function LoadingFallback() {
+    return (
+        <div className="flex flex-col h-screen bg-white">
+            <header className="bg-white border-b border-gray-200 px-6 py-4 swo-shadow">
+                <div className="max-w-5xl mx-auto flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-3">
+                            <Image
+                                src="/logo_swo.png"
+                                alt="SoftwareOne"
+                                width={40}
+                                height={40}
+                                className="object-contain"
+                            />
+                            <div className="h-8 w-px bg-gray-300"></div>
+                        </div>
+                        <div>
+                            <h1 className="text-xl font-bold text-black">
+                                AI-Powered Growth Analyst
+                            </h1>
+                            <p className="text-sm text-gray-600">by SoftwareOne</p>
+                        </div>
+                    </div>
+                    <a
+                        href="/history"
+                        className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 text-sm font-medium border border-gray-200 hover:border-gray-300 swo-shadow hover:swo-shadow-md"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>History</span>
+                    </a>
+                </div>
+            </header>
+            <div className="flex-1 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading...</p>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default function ChatPage() {
+    return (
+        <Suspense fallback={<LoadingFallback/>}>
+            <ChatPageContent/>
+        </Suspense>
     );
 }
