@@ -15,10 +15,10 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   return (
     <div className={`mb-8 ${isUser ? 'flex justify-end' : ''}`}>
       {isUser ? (
-        // User message - bubble style
+        // User message - bubble style with proper line break handling
         <div className="max-w-[85%]">
           <div className="swo-gradient text-white px-6 py-4 rounded-2xl rounded-br-lg swo-shadow">
-            <div className="text-white leading-relaxed font-medium">{message.content}</div>
+            <div className="text-white leading-relaxed font-medium whitespace-pre-wrap">{message.content}</div>
           </div>
         </div>
       ) : (

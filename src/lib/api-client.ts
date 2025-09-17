@@ -1,4 +1,4 @@
-import { ApiResponse } from './types';
+import { ApiResponse, ChatHistory } from './types';
 
 export class ApiClient {
   private baseUrl: string;
@@ -13,13 +13,25 @@ export class ApiClient {
     }
   }
 
-  async sendChatMessage(messages: { role: string; content: string }[]): Promise<ApiResponse> {
+  async sendChatMessage(
+    messages: { role: string; content: string }[],
+    chatHistoryId?: string,
+    userId?: string
+  ): Promise<ApiResponse> {
+    const url = new URL(`${this.baseUrl}/chat`);
+    if (chatHistoryId) {
+      url.searchParams.set('chat_history_id', chatHistoryId);
+    }
+    if (userId) {
+      url.searchParams.set('user_id', userId);
+    }
+
     console.log('Sending to upstream API:', {
-      url: `${this.baseUrl}/chat`,
+      url: url.toString(),
       messages: messages
     });
 
-    const response = await fetch(`${this.baseUrl}/chat`, {
+    const response = await fetch(url.toString(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -37,10 +49,90 @@ export class ApiClient {
       if (response.status === 401) {
         throw new Error('UNAUTHORIZED');
       }
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+
+      // Try to get error details from response (responseData is already parsed)
+      let errorMessage = `API request failed: ${response.status} ${response.statusText}`;
+      if (responseData.errors && Array.isArray(responseData.errors) && responseData.errors.length > 0) {
+        errorMessage = responseData.errors[0];
+      } else if (responseData.message) {
+        errorMessage = responseData.message;
+      }
+
+      throw new Error(errorMessage);
     }
 
     return responseData;
+  }
+
+  async getChatHistory(chatHistoryId: string, userId?: string): Promise<ApiResponse> {
+    const url = new URL(`${this.baseUrl}/chat/history/${chatHistoryId}`);
+    if (userId) {
+      url.searchParams.set('user_id', userId);
+    }
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error('Chat history not found');
+      }
+      if (response.status === 401) {
+        throw new Error('UNAUTHORIZED');
+      }
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
+  async listChatHistories(userId: string = 'anonymous', limit: number = 20, offset: number = 0): Promise<ChatHistory[]> {
+    const url = new URL(`${this.baseUrl}/chat/histories`);
+    url.searchParams.set('user_id', userId);
+    url.searchParams.set('limit', limit.toString());
+    url.searchParams.set('offset', offset.toString());
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('UNAUTHORIZED');
+      }
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
+  async deleteChatHistory(chatHistoryId: string, userId?: string): Promise<void> {
+    const url = new URL(`${this.baseUrl}/chat/history/${chatHistoryId}`);
+    if (userId) {
+      url.searchParams.set('user_id', userId);
+    }
+
+    const response = await fetch(url.toString(), {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error('Chat history not found');
+      }
+      if (response.status === 401) {
+        throw new Error('UNAUTHORIZED');
+      }
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
   }
 }
 

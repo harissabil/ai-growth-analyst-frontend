@@ -24,9 +24,10 @@ export default function ChatInput({ onSend, isLoading, suggestionText }: ChatInp
   }, [suggestionText]);
 
   const handleSubmit = () => {
-    const trimmed = input.trim();
-    if (trimmed && !isLoading) {
-      onSend(trimmed);
+    // Only trim leading/trailing whitespace, but preserve internal newlines
+    const processed = input.replace(/^\s+|\s+$/g, '');
+    if (processed && !isLoading) {
+      onSend(processed);
       setInput('');
     }
   };

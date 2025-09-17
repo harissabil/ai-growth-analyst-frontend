@@ -13,13 +13,16 @@ export type Message = {
 };
 
 export type ApiResponse = {
+  chat_history_id: string;
   messages: { role: string; content: string; tables?: Table[] | null }[];
 };
 
-export type ChatTurn = {
-  id: string;
-  messages: Message[];
-  createdAt: number;
+export type ChatHistory = {
+  chat_history_id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  message_count: number;
 };
 
 export type ApiError = {
