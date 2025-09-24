@@ -1,11 +1,11 @@
 'use client';
 
-import {useEffect, useState} from 'react';
+import {useEffect, useState, Suspense} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {exchangeCodeForToken, setToken, setUserId} from '@/lib/auth';
 import Image from 'next/image';
 
-export default function MicrosoftCallbackPage() {
+function MicrosoftCallbackContent() {
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
@@ -134,5 +134,35 @@ export default function MicrosoftCallbackPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+function LoadingFallback() {
+    return (
+        <div className="min-h-screen bg-white flex items-center justify-center">
+            <div className="max-w-md w-full space-y-8 p-8 text-center">
+                <Image
+                    src="/logo_swo.png"
+                    alt="SoftwareOne"
+                    width={80}
+                    height={80}
+                    className="mx-auto object-contain"
+                />
+                <div className="space-y-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+                    <h2 className="text-xl font-semibold text-gray-900">
+                        Loading...
+                    </h2>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default function MicrosoftCallbackPage() {
+    return (
+        <Suspense fallback={<LoadingFallback/>}>
+            <MicrosoftCallbackContent/>
+        </Suspense>
     );
 }
