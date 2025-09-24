@@ -5,19 +5,21 @@ export async function POST(request: NextRequest) {
     let chatHistoryId: string | undefined;
 
     try {
+        // Extract the Authorization header from the incoming request
+        const authHeader = request.headers.get('Authorization');
+        const token = authHeader?.replace('Bearer ', '');
+
+        if (!token) {
+            return NextResponse.json(
+                {code: 401, message: 'Authorization token required'},
+                {status: 401}
+            );
+        }
+
         const body = await request.json();
         const {searchParams} = new URL(request.url);
 
-        // Get user_id from query params (should be the actual user ID from auth)
         chatHistoryId = searchParams.get('chat_history_id') || undefined;
-        const userId = searchParams.get('user_id');
-
-        if (!userId) {
-            return NextResponse.json(
-                {code: 400, message: 'User ID is required'},
-                {status: 400}
-            );
-        }
 
         if (!body.messages || !Array.isArray(body.messages)) {
             return NextResponse.json(
@@ -26,11 +28,11 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const apiClient = new ApiClient();
+        // Create API client with the token
+        const apiClient = new ApiClient(token);
         const response = await apiClient.sendChatMessage(
             body.messages,
-            chatHistoryId,
-            userId
+            chatHistoryId
         );
 
         return NextResponse.json(response);
@@ -38,7 +40,7 @@ export async function POST(request: NextRequest) {
         console.error('Chat API error:', error);
 
         if (error instanceof Error) {
-            if (error.message === 'UNAUTHORIZED') {
+            if (error.message.includes('Unauthorized') || error.message.includes('403')) {
                 return NextResponse.json(
                     {code: 401, message: 'Unauthorized access. Please check your credentials.'},
                     {status: 401}

@@ -1,92 +1,98 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { ApiClient } from '@/lib/api-client';
+import {NextRequest, NextResponse} from 'next/server';
+import {ApiClient} from '@/lib/api-client';
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+    request: NextRequest,
+    {params}: { params: { id: string } }
 ) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('user_id');
-    const chatHistoryId = params.id;
+    try {
+        // Extract the Authorization header from the incoming request
+        const authHeader = request.headers.get('Authorization');
+        const token = authHeader?.replace('Bearer ', '');
 
-    if (!userId) {
-      return NextResponse.json(
-        { code: 400, message: 'User ID is required' },
-        { status: 400 }
-      );
-    }
+        if (!token) {
+            return NextResponse.json(
+                {code: 401, message: 'Authorization token required'},
+                {status: 401}
+            );
+        }
 
-    const apiClient = new ApiClient();
-    const history = await apiClient.getChatHistory(chatHistoryId, userId);
+        const chatHistoryId = params.id;
 
-    return NextResponse.json(history);
-  } catch (error) {
-    console.error('Chat history API error:', error);
+        // Create API client with the token
+        const apiClient = new ApiClient(token);
+        const history = await apiClient.getChatHistory(chatHistoryId);
 
-    if (error instanceof Error) {
-      if (error.message === 'UNAUTHORIZED') {
+        return NextResponse.json(history);
+    } catch (error) {
+        console.error('Chat history API error:', error);
+
+        if (error instanceof Error) {
+            if (error.message.includes('Unauthorized') || error.message.includes('403')) {
+                return NextResponse.json(
+                    {code: 401, message: 'Unauthorized'},
+                    {status: 401}
+                );
+            }
+            if (error.message.includes('Chat history not found') || error.message.includes('404')) {
+                return NextResponse.json(
+                    {code: 404, message: 'Chat history not found'},
+                    {status: 404}
+                );
+            }
+        }
+
         return NextResponse.json(
-          { code: 401, message: 'Unauthorized' },
-          { status: 401 }
+            {code: 502, message: 'Failed to communicate with AI service'},
+            {status: 502}
         );
-      }
-      if (error.message === 'Chat history not found') {
-        return NextResponse.json(
-          { code: 404, message: 'Chat history not found' },
-          { status: 404 }
-        );
-      }
     }
-
-    return NextResponse.json(
-      { code: 502, message: 'Failed to communicate with AI service' },
-      { status: 502 }
-    );
-  }
 }
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+    request: NextRequest,
+    {params}: { params: { id: string } }
 ) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('user_id');
-    const chatHistoryId = params.id;
+    try {
+        // Extract the Authorization header from the incoming request
+        const authHeader = request.headers.get('Authorization');
+        const token = authHeader?.replace('Bearer ', '');
 
-    if (!userId) {
-      return NextResponse.json(
-        { code: 400, message: 'User ID is required' },
-        { status: 400 }
-      );
-    }
+        if (!token) {
+            return NextResponse.json(
+                {code: 401, message: 'Authorization token required'},
+                {status: 401}
+            );
+        }
 
-    const apiClient = new ApiClient();
-    await apiClient.deleteChatHistory(chatHistoryId, userId);
+        const chatHistoryId = params.id;
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Delete chat history API error:', error);
+        // Create API client with the token
+        const apiClient = new ApiClient(token);
+        await apiClient.deleteChatHistory(chatHistoryId);
 
-    if (error instanceof Error) {
-      if (error.message === 'UNAUTHORIZED') {
+        return NextResponse.json({success: true});
+    } catch (error) {
+        console.error('Delete chat history API error:', error);
+
+        if (error instanceof Error) {
+            if (error.message.includes('Unauthorized') || error.message.includes('403')) {
+                return NextResponse.json(
+                    {code: 401, message: 'Unauthorized'},
+                    {status: 401}
+                );
+            }
+            if (error.message.includes('Chat history not found') || error.message.includes('404')) {
+                return NextResponse.json(
+                    {code: 404, message: 'Chat history not found'},
+                    {status: 404}
+                );
+            }
+        }
+
         return NextResponse.json(
-          { code: 401, message: 'Unauthorized' },
-          { status: 401 }
+            {code: 502, message: 'Failed to communicate with AI service'},
+            {status: 502}
         );
-      }
-      if (error.message === 'Chat history not found') {
-        return NextResponse.json(
-          { code: 404, message: 'Chat history not found' },
-          { status: 404 }
-        );
-      }
     }
-
-    return NextResponse.json(
-      { code: 502, message: 'Failed to communicate with AI service' },
-      { status: 502 }
-    );
-  }
 }
