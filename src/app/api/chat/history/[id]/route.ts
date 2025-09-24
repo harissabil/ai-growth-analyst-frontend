@@ -7,8 +7,15 @@ export async function GET(
 ) {
   try {
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('user_id') || 'anonymous';
+    const userId = searchParams.get('user_id');
     const chatHistoryId = params.id;
+
+    if (!userId) {
+      return NextResponse.json(
+        { code: 400, message: 'User ID is required' },
+        { status: 400 }
+      );
+    }
 
     const apiClient = new ApiClient();
     const history = await apiClient.getChatHistory(chatHistoryId, userId);
@@ -45,13 +52,20 @@ export async function DELETE(
 ) {
   try {
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('user_id') || 'anonymous';
+    const userId = searchParams.get('user_id');
     const chatHistoryId = params.id;
+
+    if (!userId) {
+      return NextResponse.json(
+        { code: 400, message: 'User ID is required' },
+        { status: 400 }
+      );
+    }
 
     const apiClient = new ApiClient();
     await apiClient.deleteChatHistory(chatHistoryId, userId);
 
-    return NextResponse.json({ message: 'Chat history deleted successfully' });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Delete chat history API error:', error);
 

@@ -4,12 +4,17 @@ import { ApiClient } from '@/lib/api-client';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('user_id') || 'anonymous';
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const offset = parseInt(searchParams.get('offset') || '0');
+    const userId = searchParams.get('user_id');
+
+    if (!userId) {
+      return NextResponse.json(
+        { code: 400, message: 'User ID is required' },
+        { status: 400 }
+      );
+    }
 
     const apiClient = new ApiClient();
-    const histories = await apiClient.listChatHistories(userId, limit, offset);
+    const histories = await apiClient.getChatHistories(userId);
 
     return NextResponse.json(histories);
   } catch (error) {

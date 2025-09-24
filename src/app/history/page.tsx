@@ -2,14 +2,27 @@
 
 import {useState, useEffect} from 'react';
 import {ChatHistory} from '@/lib/types';
+import Settings from '@/components/Settings';
+import { isAuthenticated, getUserId } from '@/lib/auth';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 export default function HistoryPage() {
+    const router = useRouter();
     const [histories, setHistories] = useState<ChatHistory[]>([]);
     const [selectedHistory, setSelectedHistory] = useState<ChatHistory | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+    // Check authentication on mount
+    useEffect(() => {
+        if (!isAuthenticated()) {
+            router.push('/auth');
+            return;
+        }
+    }, [router]);
 
     useEffect(() => {
         loadHistories();
@@ -18,7 +31,13 @@ export default function HistoryPage() {
     const loadHistories = async () => {
         try {
             setIsLoading(true);
-            const response = await fetch('/api/chat/histories?user_id=anonymous');
+            const userId = getUserId();
+            if (!userId) {
+                router.push('/auth');
+                return;
+            }
+
+            const response = await fetch(`/api/chat/histories?user_id=${userId}`);
 
             if (!response.ok) {
                 throw new Error('Failed to load chat histories');
@@ -41,7 +60,13 @@ export default function HistoryPage() {
 
         try {
             setIsDeleting(historyId);
-            const response = await fetch(`/api/chat/history/${historyId}?user_id=anonymous`, {
+            const userId = getUserId();
+            if (!userId) {
+                router.push('/auth');
+                return;
+            }
+
+            const response = await fetch(`/api/chat/history/${historyId}?user_id=${userId}`, {
                 method: 'DELETE',
             });
 
@@ -103,16 +128,29 @@ export default function HistoryPage() {
                                 <p className="text-sm text-gray-600">AI-Powered Growth Analyst by SoftwareOne</p>
                             </div>
                         </div>
-                        <a
-                            href="/chat"
-                            className="flex items-center space-x-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-200 font-medium swo-shadow-md hover:swo-shadow-lg transform hover:scale-105"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                            </svg>
-                            <span>New Chat</span>
-                        </a>
+                        <div className="flex items-center space-x-3">
+                            <a
+                                href="/chat"
+                                className="flex items-center space-x-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-200 font-medium swo-shadow-md hover:swo-shadow-lg transform hover:scale-105"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                </svg>
+                                <span>New Chat</span>
+                            </a>
+                            <button
+                                onClick={() => setIsSettingsOpen(true)}
+                                className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 text-sm font-medium border border-gray-200 hover:border-gray-300 swo-shadow hover:swo-shadow-md"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                <span>Settings</span>
+                            </button>
+                        </div>
                     </div>
                 </header>
                 <div className="flex-1 flex items-center justify-center min-h-[400px]">
@@ -145,16 +183,29 @@ export default function HistoryPage() {
                             <p className="text-sm text-gray-600">AI-Powered Growth Analyst by SoftwareOne</p>
                         </div>
                     </div>
-                    <a
-                        href="/chat"
-                        className="flex items-center space-x-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-200 font-medium swo-shadow-md hover:swo-shadow-lg transform hover:scale-105"
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                        </svg>
-                        <span>New Chat</span>
-                    </a>
+                    <div className="flex items-center space-x-3">
+                        <a
+                            href="/chat"
+                            className="flex items-center space-x-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-200 font-medium swo-shadow-md hover:swo-shadow-lg transform hover:scale-105"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            <span>New Chat</span>
+                        </a>
+                        <button
+                            onClick={() => setIsSettingsOpen(true)}
+                            className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 text-sm font-medium border border-gray-200 hover:border-gray-300 swo-shadow hover:swo-shadow-md"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <span>Settings</span>
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -289,6 +340,11 @@ export default function HistoryPage() {
                     </div>
                 )}
             </div>
+
+            <Settings
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+            />
         </div>
     );
 }

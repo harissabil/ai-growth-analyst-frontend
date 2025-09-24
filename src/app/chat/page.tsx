@@ -1,15 +1,18 @@
 'use client';
 
 import {useState, useEffect, Suspense} from 'react';
-import {useSearchParams} from 'next/navigation';
+import {useSearchParams, useRouter} from 'next/navigation';
 import {Message} from '@/lib/types';
 import ChatThread from '@/components/ChatThread';
 import ChatInput from '@/components/ChatInput';
 import ErrorBanner from '@/components/ErrorBanner';
+import Settings from '@/components/Settings';
+import { isAuthenticated, getUserId } from '@/lib/auth';
 import Image from 'next/image';
 
 function ChatPageContent() {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const historyId = searchParams?.get('history_id');
 
     const [thread, setThread] = useState<Message[]>([]);
@@ -17,7 +20,16 @@ function ChatPageContent() {
     const [error, setError] = useState<string | null>(null);
     const [suggestionText, setSuggestionText] = useState<string>('');
     const [currentChatHistoryId, setCurrentChatHistoryId] = useState<string | undefined>(historyId || undefined);
-    const [isLoadingHistory, setIsLoadingHistory] = useState(!!historyId); // Initialize as true if historyId exists
+    const [isLoadingHistory, setIsLoadingHistory] = useState(!!historyId);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+    // Check authentication on mount
+    useEffect(() => {
+        if (!isAuthenticated()) {
+            router.push('/auth');
+            return;
+        }
+    }, [router]);
 
     // Only load history on initial mount if historyId is present
     useEffect(() => {
@@ -28,7 +40,13 @@ function ChatPageContent() {
 
     const loadChatHistory = async (chatHistoryId: string) => {
         try {
-            const response = await fetch(`/api/chat/history/${chatHistoryId}?user_id=anonymous`);
+            const userId = getUserId();
+            if (!userId) {
+                router.push('/auth');
+                return;
+            }
+
+            const response = await fetch(`/api/chat/history/${chatHistoryId}?user_id=${userId}`);
 
             if (!response.ok) {
                 throw new Error('Failed to load chat history');
@@ -73,11 +91,17 @@ function ChatPageContent() {
         setThread([...newThread, loadingMessage]);
 
         try {
+            const userId = getUserId();
+            if (!userId) {
+                router.push('/auth');
+                return;
+            }
+
             const url = new URL('/api/chat', window.location.origin);
             if (currentChatHistoryId) {
                 url.searchParams.set('chat_history_id', currentChatHistoryId);
             }
-            url.searchParams.set('user_id', 'anonymous');
+            url.searchParams.set('user_id', userId);
 
             const response = await fetch(url.toString(), {
                 method: 'POST',
@@ -250,6 +274,17 @@ function ChatPageContent() {
                             </svg>
                             <span>History</span>
                         </a>
+                        <button
+                            onClick={() => setIsSettingsOpen(true)}
+                            className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 text-sm font-medium border border-gray-200 hover:border-gray-300 swo-shadow hover:swo-shadow-md"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <span>Settings</span>
+                        </button>
                     </div>
                 </div>
             </header>
@@ -266,6 +301,11 @@ function ChatPageContent() {
                     <ChatInput onSend={handleSendMessage} isLoading={isLoading} suggestionText={suggestionText}/>
                 </div>
             </div>
+
+            <Settings
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+            />
         </div>
     );
 }

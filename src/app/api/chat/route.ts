@@ -8,8 +8,16 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const {searchParams} = new URL(request.url);
 
+        // Get user_id from query params (should be the actual user ID from auth)
         chatHistoryId = searchParams.get('chat_history_id') || undefined;
-        const userId = searchParams.get('user_id') || 'anonymous';
+        const userId = searchParams.get('user_id');
+
+        if (!userId) {
+            return NextResponse.json(
+                {code: 400, message: 'User ID is required'},
+                {status: 400}
+            );
+        }
 
         if (!body.messages || !Array.isArray(body.messages)) {
             return NextResponse.json(
@@ -50,29 +58,15 @@ export async function POST(request: NextRequest) {
                 userMessage = 'Too many requests have been made. Please wait a moment before trying again.';
             }
 
-            // Return a successful response with an assistant message explaining the issue
-            return NextResponse.json({
-                chat_history_id: chatHistoryId || null,
-                messages: [
-                    {
-                        role: 'assistant',
-                        content: userMessage,
-                        tables: null
-                    }
-                ]
-            }, {status: 200});
+            return NextResponse.json(
+                {code: 500, message: userMessage},
+                {status: 500}
+            );
         }
 
-        // Fallback for unknown errors
-        return NextResponse.json({
-            chat_history_id: chatHistoryId || null,
-            messages: [
-                {
-                    role: 'assistant',
-                    content: 'I apologize, but something unexpected happened. Please try again or contact support if the issue continues.',
-                    tables: null
-                }
-            ]
-        }, {status: 200});
+        return NextResponse.json(
+            {code: 500, message: 'An unexpected error occurred'},
+            {status: 500}
+        );
     }
 }
