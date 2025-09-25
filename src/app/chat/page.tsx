@@ -7,8 +7,8 @@ import ChatThread from '@/components/ChatThread';
 import ChatInput from '@/components/ChatInput';
 import ErrorBanner from '@/components/ErrorBanner';
 import Settings from '@/components/Settings';
+import MobileNav from '@/components/MobileNav';
 import {isAuthenticated, apiFetch} from '@/lib/auth';
-import Image from 'next/image';
 
 function ChatPageContent() {
     const searchParams = useSearchParams();
@@ -171,38 +171,10 @@ function ChatPageContent() {
     if (isLoadingHistory) {
         return (
             <div className="flex flex-col h-screen bg-white">
-                <header className="bg-white border-b border-gray-200 px-6 py-4 swo-shadow">
-                    <div className="max-w-5xl mx-auto flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                            <div className="flex items-center space-x-3">
-                                <Image
-                                    src="/logo_swo.png"
-                                    alt="SoftwareOne"
-                                    width={40}
-                                    height={40}
-                                    className="object-contain"
-                                />
-                                <div className="h-8 w-px bg-gray-300"></div>
-                            </div>
-                            <div>
-                                <h1 className="text-xl font-bold text-black">
-                                    AI-Powered Growth Analyst
-                                </h1>
-                                <p className="text-sm text-gray-600">by SoftwareOne</p>
-                            </div>
-                        </div>
-                        <a
-                            href="/history"
-                            className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 text-sm font-medium border border-gray-200 hover:border-gray-300 swo-shadow hover:swo-shadow-md"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <span>History</span>
-                        </a>
-                    </div>
-                </header>
+                <MobileNav
+                    onSettingsClick={() => setIsSettingsOpen(true)}
+                    currentPage="chat"
+                />
                 <div className="flex-1 flex items-center justify-center">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
@@ -215,74 +187,21 @@ function ChatPageContent() {
 
     return (
         <div className="flex flex-col h-screen bg-white">
-            <header className="bg-white border-b border-gray-200 px-6 py-4 swo-shadow">
-                <div className="max-w-5xl mx-auto flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                        <div className="flex items-center space-x-3">
-                            <Image
-                                src="/logo_swo.png"
-                                alt="SoftwareOne"
-                                width={40}
-                                height={40}
-                                className="object-contain"
-                            />
-                            <div className="h-8 w-px bg-gray-300"></div>
-                        </div>
-                        <div>
-                            <h1 className="text-xl font-bold text-black">
-                                AI-Powered Growth Analyst
-                            </h1>
-                            <p className="text-sm text-gray-600">by SoftwareOne</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                        {currentChatHistoryId && (
-                            <a
-                                href="/chat"
-                                className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 text-sm font-medium border border-gray-200 hover:border-gray-300 swo-shadow hover:swo-shadow-md"
-                            >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                                </svg>
-                                <span>New Chat</span>
-                            </a>
-                        )}
-                        <a
-                            href="/history"
-                            className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 text-sm font-medium border border-gray-200 hover:border-gray-300 swo-shadow hover:swo-shadow-md"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <span>History</span>
-                        </a>
-                        <button
-                            onClick={() => setIsSettingsOpen(true)}
-                            className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 text-sm font-medium border border-gray-200 hover:border-gray-300 swo-shadow hover:swo-shadow-md"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                            <span>Settings</span>
-                        </button>
-                    </div>
-                </div>
-            </header>
+            <MobileNav
+                onSettingsClick={() => setIsSettingsOpen(true)}
+                showNewChat={!!currentChatHistoryId}
+                currentPage="chat"
+            />
 
             <ErrorBanner error={error} onDismiss={dismissError}/>
 
             <div className="flex-1 flex flex-col min-h-0">
                 <div className="flex-1 overflow-y-auto">
-                    <div className="max-w-5xl mx-auto w-full px-6">
+                    <div className="max-w-5xl mx-auto w-full px-4 sm:px-6">
                         <ChatThread messages={thread} onSuggestionClick={handleSuggestionClick}/>
                     </div>
                 </div>
-                <div className="max-w-5xl mx-auto w-full px-6">
+                <div className="max-w-5xl mx-auto w-full px-4 sm:px-6">
                     <ChatInput onSend={handleSendMessage} isLoading={isLoading} suggestionText={suggestionText}/>
                 </div>
             </div>
@@ -298,38 +217,10 @@ function ChatPageContent() {
 function LoadingFallback() {
     return (
         <div className="flex flex-col h-screen bg-white">
-            <header className="bg-white border-b border-gray-200 px-6 py-4 swo-shadow">
-                <div className="max-w-5xl mx-auto flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                        <div className="flex items-center space-x-3">
-                            <Image
-                                src="/logo_swo.png"
-                                alt="SoftwareOne"
-                                width={40}
-                                height={40}
-                                className="object-contain"
-                            />
-                            <div className="h-8 w-px bg-gray-300"></div>
-                        </div>
-                        <div>
-                            <h1 className="text-xl font-bold text-black">
-                                AI-Powered Growth Analyst
-                            </h1>
-                            <p className="text-sm text-gray-600">by SoftwareOne</p>
-                        </div>
-                    </div>
-                    <a
-                        href="/history"
-                        className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 text-sm font-medium border border-gray-200 hover:border-gray-300 swo-shadow hover:swo-shadow-md"
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <span>History</span>
-                    </a>
-                </div>
-            </header>
+            <MobileNav
+                onSettingsClick={() => {}}
+                currentPage="chat"
+            />
             <div className="flex-1 flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>

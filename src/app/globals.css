@@ -29,6 +29,10 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   line-height: 1.6;
+  /* Improve text rendering on mobile */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Custom scrollbar styling */
@@ -47,6 +51,38 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--gray-500);
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 640px) {
+  /* Hide scrollbars on mobile for cleaner look */
+  ::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+  }
+
+  /* Better touch targets */
+  button, a {
+    min-height: 44px;
+  }
+
+  /* Prevent zoom on input focus */
+  input, textarea, select {
+    font-size: 16px;
+  }
+
+  /* Improve touch scrolling */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Improve button touch targets on mobile */
+@media (max-width: 640px) {
+  .mobile-touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }
 
 /* SoftwareOne brand elements */
@@ -68,4 +104,23 @@ body {
 
 .swo-shadow-lg {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Mobile viewport adjustments */
+@media (max-width: 640px) {
+  /* Ensure headers don't take too much space */
+  .mobile-header {
+    min-height: 60px;
+  }
+
+  /* Better spacing for mobile cards */
+  .mobile-card {
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Improve text readability on mobile */
+  .mobile-text {
+    line-height: 1.5;
+  }
 }
