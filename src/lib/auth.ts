@@ -16,17 +16,6 @@ export interface AuthError {
     errors: string;
 }
 
-// Temporary debug function - remove after fixing
-export function setDebugToken(): void {
-    const debugToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI2NmIzMmFiLWNkYzItNDM1Zi1iYWMwLTRkZDk4NWMxNWNmZCIsImlhdCI6MTc1ODczMTcwNSwiZXhwIjoxNzU5MzM2NTA1fQ._zcEzV7fGaX_KZMREfzkZMdo1N4WaFa5MZjVvGwbnus";
-    const debugUserId = "266b32ab-cdc2-435f-bac0-4dd985c15cfd";
-
-    setToken(debugToken);
-    setUserId(debugUserId);
-
-    console.log("Debug token set manually");
-}
-
 // Token management
 export function getToken(): string | null {
     if (typeof window === 'undefined') return null;
@@ -86,6 +75,7 @@ export function getMicrosoftAuthUrl(): string {
         scope: 'openid profile email',
         response_mode: 'query',
         state,
+        prompt: 'select_account'
     });
 
     return `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/authorize?${params.toString()}`;
