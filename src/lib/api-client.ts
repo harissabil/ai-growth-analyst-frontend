@@ -1,4 +1,4 @@
-import {ApiResponse, ChatHistory} from './types';
+import {ApiResponse, ChatHistory, GoogleOAuthResponse, PlatformResponse, PlatformUpdateRequest} from './types';
 
 export class ApiClient {
     private baseUrl: string;
@@ -96,6 +96,73 @@ export class ApiClient {
 
         if (!response.ok) {
             throw new Error(`Failed to delete chat history: ${response.statusText}`);
+        }
+    }
+
+    // Google OAuth methods
+    async getGoogleOAuthToken(): Promise<GoogleOAuthResponse> {
+        const authApiBase = process.env.NEXT_PUBLIC_UPSTREAM_AUTH_API_BASE;
+        if (!authApiBase) {
+            throw new Error('NEXT_PUBLIC_UPSTREAM_AUTH_API_BASE not configured');
+        }
+        const url = new URL(`${authApiBase}google-oauth`);
+
+        const response = await this.makeRequest(url.toString());
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch Google OAuth token: ${response.statusText}`);
+        }
+
+        return response.json();
+    }
+
+    async deleteGoogleOAuthToken(): Promise<void> {
+        const authApiBase = process.env.NEXT_PUBLIC_UPSTREAM_AUTH_API_BASE;
+        if (!authApiBase) {
+            throw new Error('NEXT_PUBLIC_UPSTREAM_AUTH_API_BASE not configured');
+        }
+        const url = new URL(`${authApiBase}google-oauth`);
+
+        const response = await this.makeRequest(url.toString(), {
+            method: 'DELETE',
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to delete Google OAuth token: ${response.statusText}`);
+        }
+    }
+
+    // Platform management methods
+    async getPlatformData(): Promise<PlatformResponse> {
+        const authApiBase = process.env.NEXT_PUBLIC_UPSTREAM_AUTH_API_BASE;
+        if (!authApiBase) {
+            throw new Error('NEXT_PUBLIC_UPSTREAM_AUTH_API_BASE not configured');
+        }
+        const url = new URL(`${authApiBase}platform`);
+
+        const response = await this.makeRequest(url.toString());
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch platform data: ${response.statusText}`);
+        }
+
+        return response.json();
+    }
+
+    async updatePlatformData(data: PlatformUpdateRequest): Promise<void> {
+        const authApiBase = process.env.NEXT_PUBLIC_UPSTREAM_AUTH_API_BASE;
+        if (!authApiBase) {
+            throw new Error('NEXT_PUBLIC_UPSTREAM_AUTH_API_BASE not configured');
+        }
+        const url = new URL(`${authApiBase}platform`);
+
+        const response = await this.makeRequest(url.toString(), {
+            method: 'PUT',
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to update platform data: ${response.statusText}`);
         }
     }
 }

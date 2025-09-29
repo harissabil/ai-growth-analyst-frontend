@@ -57,6 +57,10 @@ export function isAuthenticated(): boolean {
     return getToken() !== null;
 }
 
+function generateRandomState(): string {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
+
 // Generate Microsoft OAuth URL
 export function getMicrosoftAuthUrl(): string {
     const clientId = process.env.NEXT_PUBLIC_CLIENT_ID!;
@@ -81,8 +85,34 @@ export function getMicrosoftAuthUrl(): string {
     return `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/authorize?${params.toString()}`;
 }
 
-function generateRandomState(): string {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+// Generate Google OAuth URL
+export function getGoogleAuthUrl(): string {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!;
+    const redirectUri = process.env.NODE_ENV === 'production'
+        ? process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI_FE_PROD!
+        : process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI_FE_DEV!;
+
+    const state = generateRandomState();
+    sessionStorage.setItem('google_oauth_state', state);
+
+    const params = new URLSearchParams({
+        client_id: clientId,
+        response_type: 'code',
+        redirect_uri: redirectUri,
+        scope: [
+            'openid',
+            'profile',
+            'email',
+            'https://www.googleapis.com/auth/analytics.readonly',
+            'https://www.googleapis.com/auth/webmasters.readonly',
+            'https://www.googleapis.com/auth/adwords'
+        ].join(' '),
+        state,
+        access_type: 'offline',
+        prompt: 'consent'
+    });
+
+    return `https://accounts.google.com/o/oauth2/auth?${params.toString()}`;
 }
 
 // API fetch wrapper with authentication
@@ -156,4 +186,32 @@ export async function exchangeCodeForToken(code: string): Promise<AuthResponse> 
     }
 
     return data;
+}
+
+// Exchange Google authorization code for OAuth token
+export async function exchangeGoogleCodeForToken(code: string): Promise<void> {
+    const authApiBase = process.env.NEXT_PUBLIC_UPSTREAM_AUTH_API_BASE;
+    if (!authApiBase) {
+        throw new Error('NEXT_PUBLIC_UPSTREAM_AUTH_API_BASE not configured');
+    }
+
+    const token = getToken();
+    if (!token) {
+        throw new Error('User not authenticated');
+    }
+
+    const response = await fetch(`${authApiBase}google-oauth`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({code}),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.errors || 'Google OAuth failed');
+    }
 }

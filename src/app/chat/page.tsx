@@ -23,13 +23,27 @@ function ChatPageContent() {
     const [isLoadingHistory, setIsLoadingHistory] = useState(!!historyId);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-    // Check authentication on mount
+    // Check authentication on mount - separate from settings logic
     useEffect(() => {
         if (!isAuthenticated()) {
             router.push('/auth');
-            return;
         }
-    }, [router]);
+    }, []); // Empty dependency array for auth check
+
+    // Handle auto-open settings after Google OAuth - separate effect
+    useEffect(() => {
+        const shouldOpenSettings = searchParams?.get('settings') === 'true';
+        const googleConnected = searchParams?.get('google_connected') === 'true';
+
+        if (shouldOpenSettings) {
+            setIsSettingsOpen(true);
+            // Clean up URL parameters
+            if (googleConnected) {
+                const newUrl = window.location.pathname;
+                window.history.replaceState({}, '', newUrl);
+            }
+        }
+    }, []); // Empty dependency array, only run on mount
 
     // Only load history on initial mount if historyId is present
     useEffect(() => {
