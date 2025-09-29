@@ -312,7 +312,13 @@ export default function Settings({ isOpen, onClose }: SettingsProps) {
                             src={googleToken.image_url}
                             alt={googleToken.name}
                             className="w-12 h-12 rounded-full border-2 border-green-200 object-cover"
+                            crossOrigin="anonymous"
+                            referrerPolicy="no-referrer"
+                            onLoad={() => {
+                              console.log('Google profile image loaded successfully');
+                            }}
                             onError={(e) => {
+                              console.log('Google profile image failed to load:', googleToken.image_url);
                               // Fallback to initials if image fails to load
                               const target = e.target as HTMLImageElement;
                               target.style.display = 'none';
