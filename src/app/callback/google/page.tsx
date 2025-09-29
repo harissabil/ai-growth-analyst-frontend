@@ -37,8 +37,15 @@ function GoogleCallbackContent() {
                 // Clean up stored state
                 sessionStorage.removeItem('google_oauth_state');
 
-                // Redirect to settings page with success message
-                router.push('/chat?settings=true&google_connected=true');
+                // Get the return URL for future back navigation, but always go to settings first
+                const returnUrl = sessionStorage.getItem('oauth_return_url') || '/chat';
+                // Keep the return URL stored for the settings page back button
+                sessionStorage.setItem('settings_return_url', returnUrl);
+                sessionStorage.removeItem('oauth_return_url');
+
+                // Always redirect to settings page to show the successful connection
+                // Use replace to avoid callback page in browser history
+                router.replace('/settings?google_connected=true');
             } catch (err) {
                 console.error('Google OAuth callback error:', err);
                 setError(err instanceof Error ? err.message : 'An unknown error occurred');

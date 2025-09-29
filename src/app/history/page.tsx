@@ -2,7 +2,6 @@
 
 import {useState, useEffect} from 'react';
 import {ChatHistory} from '@/lib/types';
-import Settings from '@/components/Settings';
 import MobileNav from '@/components/MobileNav';
 import {isAuthenticated, getUserId, apiFetch} from '@/lib/auth';
 import {useRouter} from 'next/navigation';
@@ -14,7 +13,6 @@ export default function HistoryPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     // Check authentication on mount
     useEffect(() => {
@@ -99,7 +97,7 @@ export default function HistoryPage() {
         return (
             <div className="min-h-screen bg-white">
                 <MobileNav
-                    onSettingsClick={() => setIsSettingsOpen(true)}
+                    onSettingsClick={() => router.push('/settings')}
                     currentPage="history"
                 />
                 <div className="flex-1 flex items-center justify-center min-h-[400px]">
@@ -115,7 +113,7 @@ export default function HistoryPage() {
     return (
         <div className="min-h-screen bg-white">
             <MobileNav
-                onSettingsClick={() => setIsSettingsOpen(true)}
+                onSettingsClick={() => router.push('/settings')}
                 currentPage="history"
             />
 
@@ -250,11 +248,6 @@ export default function HistoryPage() {
                     </div>
                 )}
             </div>
-
-            <Settings
-                isOpen={isSettingsOpen}
-                onClose={() => setIsSettingsOpen(false)}
-            />
         </div>
     );
 }

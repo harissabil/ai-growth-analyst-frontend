@@ -6,7 +6,6 @@ import {Message} from '@/lib/types';
 import ChatThread from '@/components/ChatThread';
 import ChatInput from '@/components/ChatInput';
 import ErrorBanner from '@/components/ErrorBanner';
-import Settings from '@/components/Settings';
 import MobileNav from '@/components/MobileNav';
 import {isAuthenticated, apiFetch} from '@/lib/auth';
 
@@ -21,29 +20,26 @@ function ChatPageContent() {
     const [suggestionText, setSuggestionText] = useState<string>('');
     const [currentChatHistoryId, setCurrentChatHistoryId] = useState<string | undefined>(historyId || undefined);
     const [isLoadingHistory, setIsLoadingHistory] = useState(!!historyId);
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-    // Check authentication on mount - separate from settings logic
+    // Check authentication on mount
     useEffect(() => {
         if (!isAuthenticated()) {
             router.push('/auth');
         }
-    }, []); // Empty dependency array for auth check
+    }, [router]);
 
-    // Handle auto-open settings after Google OAuth - separate effect
+    // Handle auto-open settings after Google OAuth - redirect to settings page
     useEffect(() => {
         const shouldOpenSettings = searchParams?.get('settings') === 'true';
         const googleConnected = searchParams?.get('google_connected') === 'true';
 
         if (shouldOpenSettings) {
-            setIsSettingsOpen(true);
-            // Clean up URL parameters
-            if (googleConnected) {
-                const newUrl = window.location.pathname;
-                window.history.replaceState({}, '', newUrl);
-            }
+            // Clean up URL parameters and redirect to settings
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, '', newUrl);
+            router.push('/settings');
         }
-    }, []); // Empty dependency array, only run on mount
+    }, [searchParams, router]);
 
     // Only load history on initial mount if historyId is present
     useEffect(() => {
@@ -182,11 +178,15 @@ function ChatPageContent() {
 
     const dismissError = () => setError(null);
 
+    const handleSettingsClick = () => {
+        router.push('/settings');
+    };
+
     if (isLoadingHistory) {
         return (
             <div className="flex flex-col h-screen bg-white">
                 <MobileNav
-                    onSettingsClick={() => setIsSettingsOpen(true)}
+                    onSettingsClick={handleSettingsClick}
                     currentPage="chat"
                 />
                 <div className="flex-1 flex items-center justify-center">
@@ -202,7 +202,7 @@ function ChatPageContent() {
     return (
         <div className="flex flex-col h-screen bg-white">
             <MobileNav
-                onSettingsClick={() => setIsSettingsOpen(true)}
+                onSettingsClick={handleSettingsClick}
                 showNewChat={!!currentChatHistoryId}
                 currentPage="chat"
             />
@@ -219,11 +219,6 @@ function ChatPageContent() {
                     <ChatInput onSend={handleSendMessage} isLoading={isLoading} suggestionText={suggestionText}/>
                 </div>
             </div>
-
-            <Settings
-                isOpen={isSettingsOpen}
-                onClose={() => setIsSettingsOpen(false)}
-            />
         </div>
     );
 }
