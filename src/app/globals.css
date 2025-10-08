@@ -2,7 +2,19 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #000000;
+  --gray-50: #fafafa;
+  --gray-100: #f5f5f5;
+  --gray-200: #e5e5e5;
+  --gray-300: #d4d4d4;
+  --gray-400: #a3a3a3;
+  --gray-500: #737373;
+  --gray-600: #525252;
+  --gray-700: #404040;
+  --gray-800: #262626;
+  --gray-900: #171717;
+  --accent: #000000;
+  --accent-foreground: #ffffff;
 }
 
 @theme inline {
@@ -12,15 +24,103 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+  /* Improve text rendering on mobile */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-400);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 640px) {
+  /* Hide scrollbars on mobile for cleaner look */
+  ::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+  }
+
+  /* Better touch targets */
+  button, a {
+    min-height: 44px;
+  }
+
+  /* Prevent zoom on input focus */
+  input, textarea, select {
+    font-size: 16px;
+  }
+
+  /* Improve touch scrolling */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Improve button touch targets on mobile */
+@media (max-width: 640px) {
+  .mobile-touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* SoftwareOne brand elements */
+.swo-gradient {
+  background: linear-gradient(135deg, #000000 0%, #333333 100%);
+}
+
+.swo-border {
+  border-color: #e5e5e5;
+}
+
+.swo-shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.swo-shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.swo-shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Mobile viewport adjustments */
+@media (max-width: 640px) {
+  /* Ensure headers don't take too much space */
+  .mobile-header {
+    min-height: 60px;
+  }
+
+  /* Better spacing for mobile cards */
+  .mobile-card {
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Improve text readability on mobile */
+  .mobile-text {
+    line-height: 1.5;
+  }
 }
